@@ -44,6 +44,24 @@
 
 - (id)initWithXMLString:(NSString *)inString options:(NSUInteger)inOptions error:(NSError **)outError
 {
+  /////////////////////////////////////////////////////
+  // Mod by fly2never, just exclude some wrong xml lines
+
+  // 过滤<?xml version="1.0" encoding="GB2312"?>
+  // libxml2 只认识UTF-8编码,对于声明的其他编码,无法识别.所以直接把<? xml .... ?>过滤,统一按照UTF-8来处理
+  NSRange startRange = [inString rangeOfString:@"<?"];
+  NSRange endRange = [inString rangeOfString:@"?>"];
+  if (startRange.location != NSNotFound && startRange.location != NSNotFound)
+  {
+    if (startRange.location < endRange.location)
+    {
+      NSUInteger len = endRange.location + endRange.length - startRange.location;
+      NSRange replaceRange = NSMakeRange(startRange.location, len);
+      inString = [inString stringByReplacingOccurrencesOfString:[inString substringWithRange:replaceRange]
+                                                     withString:@""];
+    }
+  }
+  ////////////////////////////////////////////////////
 #pragma unused (inOptions)
     
     if ((self = [super init]) != NULL)
